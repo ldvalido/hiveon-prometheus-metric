@@ -7,6 +7,7 @@ const ops = stdio.getopt({
 
 const promclient = require('prom-client');
 const Gauge = promclient.Gauge;
+const register = promclient.register;
 const Histogram = promclient.Histogram;
 
 const express = require('express');
@@ -16,7 +17,8 @@ const statsHandler =  require ("../stats.js");
 
 let totalEth = new Gauge({
     name:'overwatch_total_eth', 
-    help:'Your total count of ethereum'});
+    help:'Your total count of ethereum',
+    });
 
 const addr = ops.addr;
 
@@ -24,9 +26,17 @@ app.get("/metrics", (req, res) => {
     console.log(".");
     statsHandler.getAll(addr).then(r => {
         let n = Number(r.billing.totalUnpaid);
-        console.log(n);
         totalEth.set(n);
     });
+    try {
+		res.set('Content-Type', register.contentType);
+        register.metrics().then(m => {
+            console.log(m);
+            res.end(m);
+        });
+	} catch (ex) {
+		res.status(500).end(ex);
+	}
 });
 
 app.listen(process.env.port || 9010, () => {
