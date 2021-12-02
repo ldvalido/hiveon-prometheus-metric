@@ -1,0 +1,17 @@
+{
+  "name": "prometheus",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js -a Dd556283122c3b4556BF7e0B3EFeEBF2Ab6Ade99"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "prom-client": "^14.0.1",
+    "stdio": "^2.1.1"
+  }
+}
