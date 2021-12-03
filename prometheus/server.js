@@ -23,13 +23,14 @@ let totalEth = new Gauge({
 const addr = ops.addr;
 
 app.get("/metrics", (req, res) => {
-    console.log(".");
-    statsHandler.getAll(addr).then(r => {
-        let n = Number(r.billing.totalUnpaid);
-        totalEth.set(n);
-    });
     try {
-		res.set('Content-Type', register.contentType);
+        res.set('Content-Type', register.contentType);
+        
+        statsHandler.getAll(addr).then(r => {
+            let n = Number(r.billing.totalUnpaid);
+            totalEth.set(n);
+        });
+		
         register.metrics().then(m => {
             console.log(m);
             res.end(m);
@@ -39,7 +40,7 @@ app.get("/metrics", (req, res) => {
 	}
 });
 
-app.listen(process.env.port || 9010, () => {
+app.listen(process.env.port || 9010, "0.0.0.0", () => {
     console.log("Listening");
     console.log(ops.addr);
 });

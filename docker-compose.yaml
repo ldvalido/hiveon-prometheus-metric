@@ -1,0 +1,55 @@
+version: '2'
+
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
+
+networks:
+  hiveon_network:
+    driver: bridge
+    ipam:
+     config:
+      - subnet: 10.0.0.0/16
+        gateway: 10.0.0.1
+services:
+  prometheus:
+    image: prom/prometheus:v2.31.1
+    volumes:
+      - ./prometheusConfig/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/hiveon_exporter.yml'
+      # - '--storage.tsdb.path=/prometheus'
+      # - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      # - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - 9090:9090
+    networks:
+      hiveon_network:
+        ipv4_address: 10.0.0.2
+    restart: always
+  hiveon-exporter:
+    build: .
+    ports:
+      - 9010:9010
+    networks:
+       hiveon_network:
+         ipv4_address: 10.0.0.3
+    restart: always
+
+  # grafana:
+  #   image: grafana/grafana
+  #   user: "472"
+  #   depends_on:
+  #     - prometheus
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #     - ./grafana/provisioning/:/etc/grafana/provisioning/
+  #   env_file:
+  #     - ./grafana/config.monitoring
+  #   networks:
+  #     - back-tier
+  #     - front-tier
+  #   restart: always
