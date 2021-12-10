@@ -14,11 +14,38 @@ const express = require('express');
 const app = express();
 
 const statsHandler =  require ("../stats.js");
-
+/*
+const metrics = {
+    gauges: [
+        {name:'overwatch_total_eth',help:'Your total count of ethereum',metric:(r)=>r.billing.totalUnpaid}
+    ]
+}*/
 let totalEth = new Gauge({
     name:'overwatch_total_eth', 
     help:'Your total count of ethereum',
     });
+
+let realTimeHashrate = new Gauge({
+    name:'hashrate_realtime', 
+    help:'Realtime Hashrate',
+    });
+
+
+let avgHashrate = new Gauge({
+    name:'hashrate_avg', 
+    help:'Avg. Hashrate over 24h',
+    });
+
+let reportedHashrate = new Gauge({
+    name:'hashrate_reported', 
+    help:'Reported Hashrate',
+    });
+
+let reportedHashrate24 = new Gauge({
+    name:'hashrate_reported24', 
+    help:'Reported Hashrate over 24h',
+    });
+            
 
 const addr = ops.addr;
 
@@ -29,6 +56,11 @@ app.get("/metrics", (req, res) => {
         statsHandler.getAll(addr).then(r => {
             let n = Number(r.billing.totalUnpaid);
             totalEth.set(n);
+
+            realTimeHashrate.set(Number(r.overview.hashrate))
+            avgHashrate.set(Number(r.overview.hashrate24h))
+            reportedHashrate.set(Number(r.overview.reportedHashrate))
+            reportedHashrate24.set(Number(r.overview.reportedHashrate24h))
         });
 		
         register.metrics().then(m => {
